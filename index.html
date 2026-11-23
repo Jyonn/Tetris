@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171614">
+  <meta name="description" content="Elos 是 LemonAde 的智能俄罗斯方块。选择原版玩法，或按 X 观看 AI 接管。">
+  <title>Elos · 智能俄罗斯方块</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <main class="arcade">
+    <header class="masthead">
+      <div class="identity">
+        <div class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <h1>ELOS</h1>
+        <div class="subtitle">智能俄罗斯方块</div>
+      </div>
+      <div class="edition">LEMONADE <span>V4.20 / WEB</span></div>
+    </header>
+
+    <div class="machine">
+      <section class="setup" aria-labelledby="settings-title">
+        <div class="section-heading">
+          <h2 id="settings-title">开局设置</h2>
+          <span lang="en">SETUP</span>
+        </div>
+
+        <fieldset id="settings" class="settings">
+          <legend class="sr-only">开局设置</legend>
+          <label class="setting">
+            <span>方块类型</span>
+            <select id="style">
+              <option value="0">三格方块</option>
+              <option value="1" selected>四格方块</option>
+              <option value="2">五格方块</option>
+              <option value="3">花式方块</option>
+            </select>
+          </label>
+          <label class="setting">
+            <span>棋盘尺寸</span>
+            <select id="size">
+              <option value="0">10 × 15</option>
+              <option value="1" selected>10 × 20</option>
+              <option value="2">15 × 20</option>
+              <option value="3">20 × 20</option>
+            </select>
+          </label>
+          <label class="setting">
+            <span>下落难度</span>
+            <select id="difficulty">
+              <option value="0">简单</option>
+              <option value="1" selected>中等</option>
+              <option value="2">困难</option>
+              <option value="3">极难</option>
+            </select>
+          </label>
+          <label class="setting">
+            <span>方块边线</span>
+            <select id="pattern">
+              <option value="0">无边线</option>
+              <option value="1" selected>深色边线</option>
+              <option value="2">白色边线</option>
+              <option value="3">全局白线</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <div class="setup-note">
+          <img src="./assets/lemonade.png" alt="LemonAde" width="286" height="95">
+          <p>原版画面与 AI 算法</p>
+        </div>
+      </section>
+
+      <section class="cabinet" aria-labelledby="screen-title">
+        <div class="screen-bar">
+          <h2 id="screen-title" lang="en">PLAYFIELD</h2>
+          <div id="status" class="status" data-state="ready" role="status"><i></i><span>待开始</span></div>
+        </div>
+        <div class="screen">
+          <div id="well" class="well">
+            <canvas id="board" aria-label="Elos 游戏棋盘"></canvas>
+            <div id="overlay" class="overlay">
+              <div class="splash splash-ready">
+                <img src="./assets/original-title.png" alt="LemonAde 原版标题画面" width="300" height="400">
+                <button class="start" type="button" data-action="start">开始游戏 <kbd>Enter</kbd></button>
+              </div>
+              <div class="splash splash-paused" hidden>
+                <strong>已暂停</strong>
+                <button class="start" type="button" data-action="resume">继续游戏 <kbd>C</kbd></button>
+              </div>
+              <div class="splash splash-over" hidden>
+                <img src="./assets/game-over.png" alt="Game Over" width="301" height="301">
+                <button class="start" type="button" data-action="reset">重新开局 <kbd>R</kbd></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-bar screen-info">
+          <span id="dimensions">10 × 20</span>
+          <span id="piece-set">4 格 / 7 种</span>
+        </div>
+      </section>
+
+      <aside class="console" aria-label="记分与 AI">
+        <div class="section-heading score-heading">
+          <h2>计分板</h2>
+          <span lang="en">SCORE</span>
+        </div>
+        <div class="scoreboard">
+          <output id="score" aria-label="分数" aria-live="off">000000</output>
+          <div class="lines"><span>消行</span><output id="lines" aria-label="消行数" aria-live="off">00</output></div>
+        </div>
+
+        <div class="next">
+          <h2>下一块</h2>
+          <canvas id="preview" width="100" height="100" aria-label="下一块预览"></canvas>
+        </div>
+
+        <div class="autopilot">
+          <button class="ai-button" type="button" data-action="ai" aria-pressed="false">
+            <kbd>X</kbd>
+            <span id="ai-label">AI 接管</span>
+          </button>
+          <p>接管后，AI 会一直玩到本局结束。</p>
+        </div>
+      </aside>
+
+      <section class="controls" aria-label="游戏操作">
+        <div class="movement">
+          <button type="button" data-action="left"><kbd>←</kbd><span>左移</span></button>
+          <button type="button" data-action="rotate"><kbd>↑</kbd><span>旋转</span></button>
+          <button type="button" data-action="down"><kbd>↓</kbd><span>下落</span></button>
+          <button type="button" data-action="right"><kbd>→</kbd><span>右移</span></button>
+        </div>
+        <div class="session">
+          <button type="button" data-action="pause"><kbd>P</kbd><span id="pause-label">暂停</span></button>
+          <button type="button" data-action="quit"><kbd>Q</kbd><span>结束</span></button>
+          <button type="button" data-action="reset"><kbd>R</kbd><span>重开</span></button>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
