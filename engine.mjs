@@ -68,9 +68,20 @@ function landingRating(board, rotations, { x, y, turn }) {
     }
   }
 
-  // V4.20 rates each reachable landing by depth and exposed edges.
-  // Its line and flood-fill terms are constant within one search.
-  return y * 2 - exposed * 5;
+  const simulated = board.map(row => row.slice());
+  const cleared = place(simulated, rotations, { x, y, turn, type: 0 });
+  const settled = cleared.length ? clearRows(simulated, cleared) : simulated;
+
+  let holes = 0;
+  for (let col = 0; col < width; col++) {
+    let covered = false;
+    for (const row of settled) {
+      if (row[col] >= 0) covered = true;
+      else if (covered) holes++;
+    }
+  }
+
+  return y * 2 - exposed * 5 + cleared.length * 5 - holes * 4;
 }
 
 export function planAI(board, rotations, active) {
